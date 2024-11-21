@@ -33,6 +33,7 @@ player = pygame.Rect(100, 500, 50, 50)
 monster = pygame.Rect(WIDTH - 100, 500, 50, 50)
 key = pygame.Rect(400, 300, 30, 30)
 player_sprite_img = pygame.image.load(join('image', 'player.png'))  
+monster_sprite_img = pygame.image.load(join('image', 'player.png'))
 # player_sprite_img = pygame.transform.scale(player_sprite_img, (50, 50))
 
 blocks = [pygame.Rect(100, 300, 50, 50), pygame.Rect(WIDTH // 2, 300, 50, 50), pygame.Rect(WIDTH - 150, 300, 50, 50)]
@@ -213,10 +214,9 @@ def horror_game():
             running = False
 
         screen.fill(BLACK)
-        screen.blit(player_sprite_img, player.topleft)
-        pygame.draw.rect(screen, GREEN, pygame.Rect(WIDTH - 150, 50, 50, 50))  
+        screen.blit(player_sprite_img, player.topleft) 
+        screen.blit(monster_sprite_img, monster.topleft) 
         pygame.draw.rect(screen, WHITE, key)  
-        pygame.draw.rect(screen, RED, monster)  
 
         for block in blocks:
             pygame.draw.rect(screen, GREEN, block)
