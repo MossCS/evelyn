@@ -12,7 +12,7 @@ pygame.display.set_caption("Circus Escape")
 font = pygame.font.Font(join('font', 'Carnevalee Freakshow.ttf'), 36)
 story_font = pygame.font.Font(join('font', 'Carnevalee Freakshow.ttf'), 28)
 
-background_img = pygame.image.load(join('image', 'test.png'))  
+background_img = pygame.image.load(join('image', 'background.jpg'))  
 
 scene = 1
 score = 0
@@ -23,8 +23,8 @@ start_time = 0
 game_over = False
 has_key = False  
 
-dart_img = pygame.image.load(join('image', 'test.png'))  
-dart_img = pygame.transform.scale(dart_img, (120, 120))  
+dart_img = pygame.image.load(join('image', 'dart.png'))  
+dart_img = pygame.transform.scale(dart_img, (180, 120))  
 dart_rect = dart_img.get_rect()  
 
 player_speed = 5
@@ -32,6 +32,8 @@ monster_speed = 3
 player = pygame.Rect(100, 500, 50, 50)
 monster = pygame.Rect(WIDTH - 100, 500, 50, 50)
 key = pygame.Rect(400, 300, 30, 30)
+player_sprite_img = pygame.image.load(join('image', 'player.png'))  
+# player_sprite_img = pygame.transform.scale(player_sprite_img, (50, 50))
 
 blocks = [pygame.Rect(100, 300, 50, 50), pygame.Rect(WIDTH // 2, 300, 50, 50), pygame.Rect(WIDTH - 150, 300, 50, 50)]
 hints = [63, 58]  
@@ -41,7 +43,7 @@ code_required = '6358'
 home_music = join('audio', 'test.mp3')
 story_music = join('audio', 'test.mp3')
 dart_game_music = join('audio', 'test.mp3')
-horror_game_music = join('audio', 'test.mp3')
+horror_game_music = join('audio', 'horror.mp3')
 
 suara_mbledos = pygame.mixer.Sound(join('audio', 'mbledos.mp3'))
 
@@ -54,7 +56,7 @@ def stop_music():
     pygame.mixer.music.stop()  
 
 def distance(point1, point2):
-    return math.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2)
+    return math.sqrt((point1[0] - point2[0]) * 2 + (point1[1] - point2[1]) * 2)
 
 def show_home_screen():
     screen.blit(background_img, (0, 0))  
@@ -82,17 +84,17 @@ def show_story_1():
     pygame.display.flip()
 
 def balloon_dart_game():
-    global score, balloons, level, time_limit, start_time, game_over
+    global score, balloons, level, time_limit, start_time, game_over, scene
     screen.fill(WHITE)
 
     elapsed_time = pygame.time.get_ticks() - start_time
     remaining_time = time_limit - elapsed_time // 1000
 
     if remaining_time <= 0:
-        game_over = True  
+        game_over = True
+        scene = 4  
 
     if not game_over:
-
         dart_rect.center = pygame.mouse.get_pos()
         screen.blit(dart_img, dart_rect)
 
@@ -118,7 +120,6 @@ def balloon_dart_game():
         screen.blit(time_text, (10, 50))
 
     else:
-
         end_text = font.render("Time's up! Press SPACE to Continue", True, BLACK)
         screen.blit(end_text, (WIDTH // 2 - 200, HEIGHT // 2))
 
@@ -128,9 +129,9 @@ def reset_balloon_game():
     global balloons, level, time_limit, start_time, game_over
     balloons = []
     start_time = pygame.time.get_ticks()
-    time_limit = 10 + level * 5  
+    time_limit = 1 + level * 5  
     game_over = False
-
+ 
 def show_story_2():
     screen.fill(WHITE)
     story_lines = [
@@ -150,7 +151,7 @@ def horror_game():
     global has_key, game_over, input_code
     running = True
     while running:
-        pygame.time.Clock().tick(60)
+        pygame.time.Clock().tick(80)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -158,7 +159,6 @@ def horror_game():
                 running = False
 
             if event.type == pygame.KEYDOWN:
-
                 if event.unicode.isdigit() and len(input_code) < 4:
                     input_code += event.unicode
 
@@ -178,6 +178,17 @@ def horror_game():
             player.y -= player_speed
         if keys[pygame.K_DOWN] and player.bottom < HEIGHT:
             player.y += player_speed
+            
+        for block in blocks:
+            if player.colliderect(block):
+                if keys[pygame.K_LEFT]:
+                    player.x += player_speed  
+                if keys[pygame.K_RIGHT]:
+                    player.x -= player_speed
+                if keys[pygame.K_UP]:
+                    player.y += player_speed
+                if keys[pygame.K_DOWN]:
+                    player.y -= player_speed
 
         if player.x < monster.x:
             monster.x -= monster_speed
@@ -202,7 +213,7 @@ def horror_game():
             running = False
 
         screen.fill(BLACK)
-        screen.blit(dart_img, player.topleft)
+        screen.blit(player_sprite_img, player.topleft)
         pygame.draw.rect(screen, GREEN, pygame.Rect(WIDTH - 150, 50, 50, 50))  
         pygame.draw.rect(screen, WHITE, key)  
         pygame.draw.rect(screen, RED, monster)  
@@ -255,7 +266,7 @@ def reset_game():
     score = 0
     level = 1
     balloons = []
-    time_limit = 10
+    time_limit = 60
     start_time = 0
     game_over = False
     has_key = False
@@ -267,7 +278,6 @@ play_music(home_music)
 running = True
 while running:
     for event in pygame.event.get():
-
         if event.type == pygame.QUIT:
             pygame.quit()
             running = False
@@ -283,15 +293,17 @@ while running:
                     scene = 3
                     play_music(dart_game_music)  
                 elif scene == 3 and game_over:
-                    reset_balloon_game()
+                    reset_balloon_game()  
                 elif scene == 4:
                     stop_music()  
-                    scene = 5
+                    scene = 6
                     play_music(story_music)  
                 elif scene == 5:
                     stop_music()  
                     scene = 6  
                     play_music(horror_game_music)  
+                elif scene == 6 and game_over:  
+                    reset_game()  
 
     if scene == 1:
         show_home_screen()
@@ -303,5 +315,5 @@ while running:
         show_story_2()
     elif scene == 6:
         horror_game()
-
+        
 pygame.quit()
